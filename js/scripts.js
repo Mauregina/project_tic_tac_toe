@@ -1,6 +1,8 @@
 let boxes = document.querySelectorAll('.box')
 let x = document.querySelector('.x')
 let o = document.querySelector('.o')
+let msgContainer = document.querySelector('#message')
+let msgText = document.querySelector('#message p')
 
 turn = 0
 
@@ -30,22 +32,22 @@ const createElement = (turn) => {
 }
 
 const checkHasWinner = (turn) => {
-    if (turn > 4){ 
+    if (turn > 4){ // Minimum move to have a winner
         let hasWinner = false
         const [indexesX, indexesO] = getIndexes()
 
         hasWinner = isCorrectCombination(indexesX)
 
         if (hasWinner) {
-            console.log('Jogador 1 ganhou')
+            declareWinner(1)
         } else { 
             hasWinner = isCorrectCombination(indexesO)
 
             if (hasWinner) {
-                console.log('Jogador 2 ganhou')
+                declareWinner(2)
             } else {
                 if (turn == 9) {
-                    console.log('Velhou!') 
+                    declareWinner()
                 }
             }
         }
@@ -70,25 +72,63 @@ const getIndexes = () => {
 }
 
 const isCorrectCombination = (indexes) => {
-    let indexesStr = JSON.stringify(indexes) 
+
+    let containsIndexes = (indexes, target) => target.every(v => indexes.includes(v));
 
     // Horizontal
-    if ((indexesStr == JSON.stringify([0,1,2])) || (indexesStr == JSON.stringify([3,4,5])) || (indexesStr == JSON.stringify([6,7,8]))) {
+    if ((containsIndexes(indexes, [0,1,2])) || (containsIndexes(indexes, [3,4,5])) || (containsIndexes(indexes, [6,7,8]))) {
         return true
     }
 
     // Vertical
-    if ((indexesStr == JSON.stringify([0,3,6])) || (indexesStr == JSON.stringify([1,4,7])) || (indexesStr == JSON.stringify([2,5,8]))) {
+    if ((containsIndexes(indexes, [0,3,6])) || (containsIndexes(indexes, [1,4,7])) || (containsIndexes(indexes, [2,5,8]))) {
         return true
     }
 
     // Diagonal
-    if ((indexesStr == JSON.stringify([0,4,8])) || (indexesStr == JSON.stringify([2,4,6]))){
+    if ((containsIndexes(indexes, [0,4,8])) || (containsIndexes(indexes, [2,4,6]))){
         return true
     }
 
     return false
 }
 
+function declareWinner(winner=0) {
+    let msg = ''
+    turn = 0
+
+    if (winner == 1) {
+        msg = 'Player 1 won'
+        let scoreX = document.querySelector('#x-score')
+        scoreX.textContent = parseInt(scoreX.textContent) + 1
+    } else if (winner == 2) {
+        msg = 'Player 2 won'
+        let scoreO = document.querySelector('#o-score')
+        scoreO.textContent = parseInt(scoreO.textContent) + 1
+    } else if (winner == 0){
+        msg = 'No winner'
+    }
+
+    msgText.innerHTML = msg
+    msgContainer.classList.remove("hide")
+    
+    // Disable click while setTimeout is not finished
+    let container = document.querySelector('#container')
+    container.style.pointerEvents = 'none'
+
+    setTimeout(function(){
+        container.style.pointerEvents = 'auto'
+        msgContainer.classList.add("hide")
+        clearGame()
+    }, 3000)  
+}
+
+function clearGame() {
+    let boxesRemove = document.querySelectorAll('.box div')   
+
+    for(let i=0; i < boxesRemove.length; i++){   
+        boxesRemove[i].parentNode.removeChild(boxesRemove[i])
+    }         
+}
 
 
