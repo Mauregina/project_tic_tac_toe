@@ -10,7 +10,7 @@ let scoreContainer = document.querySelector('#score-container')
 
 let secondPlayer = false
 let turn = 0
-const minMoveHaveWinner = 5 // Minimum move to have a winner
+const minMoveHaveWinner = 5 // From this move we check if Minimum move to have a winner
 const minPreviusMoveHavePlayer1Winner = 3 // From this move we check if player 1 has a chance to win in the next move and block it
 const minPreviusMoveHaveComputerWinner = 4 // From this move we check if player 2 (computer) has a chance to win in the next move and move it
 const player1 = 1
@@ -77,6 +77,7 @@ function getComputerMove() {
         winnerMoveIndex = getWinningCombination(player2, availableIndexes)
 
         if (winnerMoveIndex) {
+
             return winnerMoveIndex
         }
     }
@@ -89,8 +90,7 @@ function getComputerMove() {
         }
     }        
 
-    let randomIndex = availableIndexes[Math.floor(Math.random()*availableIndexes.length)];
-    return randomIndex
+    return getBetterMoveMinMax(availableIndexes)
 }
 
 function getWinningCombination(player, availableIndexes) {
@@ -104,18 +104,21 @@ function getWinningCombination(player, availableIndexes) {
     }
 
     for (let i=0; i < availableIndexes.length; i++) {
+        let previousIndexes = indexes.slice()
+        previousIndexes.push(availableIndexes[i])
 
-        indexes.push(availableIndexes[i])
-        
-        if (isWinnerCombination(indexes)) {
+        if (isWinnerCombination(previousIndexes)) {
             return availableIndexes[i]
         }
     }
-
     return
 }
 
-const createElement = (turn) => {
+function getBetterMoveMinMax(availableIndexes) {
+    return availableIndexes[Math.floor(Math.random()*availableIndexes.length)];
+}
+
+function createElement(turn) {
     if (turn%2 == 0) { // its player 1
         let cloneElement = x.cloneNode(true)
         return cloneElement
@@ -125,7 +128,7 @@ const createElement = (turn) => {
     return cloneElement
 }
 
-const checkIsOver = (turn) => {
+function checkIsOver(turn) {
     if (turn >= minMoveHaveWinner){
         let hasWinner = false
         const [indexesX, indexesO] = getIndexes()
@@ -152,7 +155,7 @@ const checkIsOver = (turn) => {
     return false
 }
 
-const getIndexes = () => {
+function getIndexes(){
     let indexesX = []
     let indexesO = [] 
     
@@ -169,7 +172,7 @@ const getIndexes = () => {
     return [indexesX, indexesO]
 }
 
-const isWinnerCombination = (indexes) => {
+function isWinnerCombination(indexes) {
 
     let containsIndexes = (indexes, target) => target.every(v => indexes.includes(v));
 
