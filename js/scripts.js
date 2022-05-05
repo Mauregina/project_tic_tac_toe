@@ -16,8 +16,6 @@ const minPreviusMoveHaveComputerWinner = 4 // From this move we check if player 
 const player1 = 1
 const player2 = 2
 
-//let nodesMap = new Map();
-
 let bestValues = [];
 
 btn2Players.addEventListener("click", () => {
@@ -69,14 +67,6 @@ for(let i=0; i < boxes.length; i++){
 }
 
 function getComputerMove() {
-    //temporario
-
-    if (turn > 4) {
-        let board = getBoard()
-        best = getBestMove(board)
-        console.log(bestValues)
-    }
-//------------------------------------------
     let availableIndexes = []
 
     boxes.forEach(function callback(value, index){
@@ -102,7 +92,7 @@ function getComputerMove() {
         }
     }        
 
-    return getBetterMoveMinMax(availableIndexes)
+    return getRandomMove(availableIndexes)
 }
 
 function getWinningCombination(player, availableIndexes) {
@@ -126,166 +116,8 @@ function getWinningCombination(player, availableIndexes) {
     return
 }
 
-function getBetterMoveMinMax(availableIndexes) {
+function getRandomMove(availableIndexes) {
     return availableIndexes[Math.floor(Math.random()*availableIndexes.length)];
-}
-
-function getBestMove(board, maximizing = true, callback = () => {}, depth = 0) {
-    console.log('DEPTH', depth)
-    console.log(board)
-
-    //if (depth == 0) nodesMap.clear()
-
-    //checar se jogo terminou
-    let terminal = isTerminal(board) 
-    if (terminal || depth === -1) {
-        if (terminal === 'o'){
-            console.log('terminou', 100 - depth)
-            return 100 - depth
-        } else if (terminal === 'x'){
-            console.log('terminou', -100 + depth)
-            return - 100 + depth
-        } 
-        console.log('terminou', 0)
-        return 0
-    }
-    if (maximizing) {
-        //let best = -100;
-        let availableMoves = getAvailableMoves(board)
-
-        availableMoves.forEach((index, i) => {
-            let child = board.slice()
-            child[index] = "o"
-            const nodeValue = getBestMove(child, false, callback, depth + 1);
-
-            console.log('AVALIA MELHOR -- MAXIMIZING', nodeValue)
-            console.log('index', i)
-            bestValues.push({key: i, value: nodeValue})
-
-            //best = Math.max(best, nodeValue);
-
-            if (depth == 0) {
-                console.log('DEVERIA ADICIONAR SO AQUI?')
-                //Comma separated indices if multiple moves have the same heuristic value
-                // const moves = nodesMap.has(nodeValue)
-                //     ? `${nodesMap.get(nodeValue)},${index}`
-                //     : index;
-                // nodesMap.set(nodeValue, moves);
-            }
-        });
-
-        //If it's the main call, return the index of the best move or a random index if multiple indices have the same value
-        if (depth == 0) {
-            console.log('MAIN CALL')
-            // let returnValue;
-            // if (typeof nodesMap.get(best) == "string") {
-            //     const arr = nodesMap.get(best).split(",");
-            //     const rand = Math.floor(Math.random() * arr.length);
-            //     returnValue = arr[rand];
-            // } else {
-            //     returnValue = nodesMap.get(best);
-            // }
-            // //run a callback after calculation and return the index
-            // callback(returnValue);
-            // return returnValue;
-            return 1
-        }
-        //If not main call (recursive) return the heuristic value for next calculation
-        return;
-    }
-
-    if (!maximizing) {
-        //let best = 100;
-
-        let availableMoves = getAvailableMoves(board)
-
-        availableMoves.forEach(index => {
-            let child = board.slice()
-            child[index] = "x"
-
-            let nodeValue = getBestMove(child, true, callback, depth + 1);
-
-            console.log('AVALIA MELHOR -- MINIMAZING', nodeValue)
-            bestValues.push({key: index, value: nodeValue})
-            
-            //best = Math.min(best, nodeValue);
-
-            if (depth == 0) {
-                console.log('DEVERIA ADICIONAR SO AQUI?')
-
-                // const moves = nodesMap.has(nodeValue)
-                //     ? nodesMap.get(nodeValue) + "," + index
-                //     : index;
-                // nodesMap.set(nodeValue, moves);
-            }
-        });
-
-        //If it's the main call, return the index of the best move or a random index if multiple indices have the same value
-        if (depth == 0) {
-            console.log('MAIN CALL')
-
-            // let returnValue;
-            // if (typeof nodesMap.get(best) == "string") {
-            //     const arr = nodesMap.get(best).split(",");
-            //     const rand = Math.floor(Math.random() * arr.length);
-            //     returnValue = arr[rand];
-            // } else {
-            //     returnValue = nodesMap.get(best);
-            // }
-            // //run a callback after calculation and return the index
-            // callback(returnValue);
-            // return returnValue;
-            return 1
-        }
-        //If not main call (recursive) return the heuristic value for next calculation
-        return;
-    }
-}
-
-function getAvailableMoves(board) {
-    const moves = [];
-    board.forEach((cell, index) => {
-        if(!cell) moves.push(index);
-    });
-    return moves;
-}
-
-function isTerminal(board){
-    //Checking Horizontal Wins
-    if (board[0] === board[1] && board[0] === board[2] && board[0]) {
-        return board[0];
-    }
-    if (board[3] === board[4] && board[3] === board[5] && board[3]) {
-        return board[3];
-    }
-    if (board[6] === board[7] && board[6] === board[8] && board[6]) {
-        return board[6];
-    }  
-
-    //Checking Vertical Wins
-    if (board[0] === board[3] && board[0] === board[6] && board[0]) {
-        return board[0]
-    }
-    if (board[1] === board[4] && board[1] === board[7] && board[1]) {
-        return board[1]
-    }
-    if (board[2] === board[5] && board[2] === board[8] && board[2]) {
-        return board[2]
-    }
-
-    //Checking Diagonal Wins
-    if (board[0] === board[4] && board[0] === board[8] && board[0]) {
-        return board[0]
-    }
-    if (board[2] === board[4] && board[2] === board[6] && board[2]) {
-        return board[2]
-    }
-
-    if (board.every(cell => cell)) {
-        return 'draw'
-    }
-
-    return false
 }
 
 function createElement(turn) {
